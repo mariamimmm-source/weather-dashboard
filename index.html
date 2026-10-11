@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>WeatherX — Weather Dashboard</title>
     <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -21,40 +21,29 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
             <i class="fa-solid fa-cloud-sun"></i>
             <h2>WeatherX</h2>
         </div>
-        <nav>
-            <a href="#"><i class="fa-solid fa-house"></i> Dashboard</a>
-
-            <a href="#"><i class="fa-solid fa-earth-americas"></i> World Map</a>
-
-            <a href="#"><i class="fa-solid fa-chart-line"></i> Reports</a>
-
-            <a href="#"><i class="fa-solid fa-calendar-days"></i> Forecast</a>
-
-            <a href="#"><i class="fa-solid fa-triangle-exclamation"></i> Alerts</a>
-
-            <a href="#"><i class="fa-solid fa-star"></i> Favorites</a>
-
-            <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
-
-            <a href="#"><i class="fa-solid fa-headset"></i> Support</a>
-
+        <nav aria-label="Main navigation">
+            <a href="#dashboard"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="#forecast"><i class="fa-solid fa-calendar-days"></i> Forecast</a>
+            <a href="#reports"><i class="fa-solid fa-chart-line"></i> Reports</a>
+            <a href="#world-map"><i class="fa-solid fa-earth-americas"></i> World Map</a>
         </nav>
 
     </aside>
-    <main class="main-content">
+    <main class="main-content" id="dashboard">
         <header class="top-header">
 
-    <div class="search-box">
+    <form class="search-box" role="search">
 
         <i class="fa-solid fa-magnifying-glass"></i>
 
         <input
         type="text"
         placeholder="Search city..."
-        id="searchInput"
+        id="searchInput" aria-label="City name" autocomplete="off"
         >
 
-    </div>
+        <button class="search-btn" type="submit" aria-label="Search city"><i class="fa-solid fa-arrow-right"></i></button>
+    </form>
 
     <div class="header-right">
 
@@ -66,24 +55,12 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 
         </button>
 
-        <div class="profile">
-
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkRRXBmmTTXAexndCy4R-KjVFdrIw_rhw_45KA0_GysNnAo8CHa7fkdzM&s=10" alt="">
-
-            <div>
-
-                <h4>Emily Foster</h4>
-
-                <span>Premium</span>
-
-            </div>
-
-        </div>
 
     </div>
 
 </header>
-      <section class="weather-grid">
+      <p id="weatherStatus" class="weather-status" role="status" aria-live="polite"></p>
+      <section class="weather-grid" aria-busy="true">
 
 
     <div class="card current-weather">
@@ -92,9 +69,9 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 
             <div>
 
-                <h3>New York</h3>
+                <h3>Loading weather…</h3>
 
-                <p>Tuesday, 22 July</p>
+                <p>City local time</p>
 
             </div>
 
@@ -102,9 +79,9 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 
         </div>
 
-        <h1 class="temperature">26°</h1>
+        <h1 class="temperature">—</h1>
 
-        <p class="condition">Sunny</p>
+        <p class="condition">—</p>
 
     </div>
 
@@ -119,7 +96,7 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 
                 <p>Humidity</p>
 
-                <h2>65%</h2>
+                <h2>—</h2>
 
             </div>
 
@@ -127,7 +104,7 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 
                 <p>Wind</p>
 
-                <h2>18 km/h</h2>
+                <h2>—</h2>
 
             </div>
 
@@ -135,15 +112,15 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 
                 <p>Pressure</p>
 
-                <h2>1015</h2>
+                <h2>—</h2>
 
             </div>
 
             <div class="mini-card">
 
-                <p>UV Index</p>
+                <p>Feels Like</p>
 
-                <h2>5</h2>
+                <h2>—</h2>
 
             </div>
 
@@ -152,9 +129,9 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
     </div>
 
 
-    <div class="card hourly">
+    <div class="card hourly" id="forecast">
 
-        <h3>Hourly Forecast</h3>
+        <h3>Next 24 Hours</h3><p class="section-note">Forecast in 3-hour intervals</p>
         <div class="hourly-container">
 
     </div>
@@ -162,16 +139,16 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
     </div>
 
 
-    <div class="card reports">
+    <div class="card reports" id="reports">
 
         <h3>Temperature Report</h3>
 
-        <canvas id="tempChart"></canvas>
+        <div class="chart-container"><canvas id="tempChart" aria-label="Temperature forecast chart" role="img"></canvas></div>
 
     </div>
 <div class="card global-overview">
 
-    <h3><i class="fa-solid fa-earth-americas"></i> Global Overview</h3>
+    <h3><i class="fa-solid fa-earth-americas"></i> Sample City Overview</h3><p class="section-note">Demo values — not live weather</p>
 
     <div class="overview-grid">
 
@@ -188,7 +165,7 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
         </div>
 
         <div class="overview-item">
-            <span><i class="fa-solid fa-cloud-rain"></i> Wettest</span>
+            <span><i class="fa-solid fa-droplet"></i> Humidity</span>
             <h2>92%</h2>
             <p>Singapore</p>
         </div>
@@ -203,9 +180,9 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 
 </div>
 
-    <div class="card map">
+    <div class="card map" id="world-map">
 
-        <h3>World Temperature Map</h3>
+        <h3>World Map</h3><p class="section-note">Illustrative heatmap — sample data</p>
 
         <div id="map"></div>
 
@@ -214,38 +191,10 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"
 </section>
 
     </main>
-    <aside class="right-sidebar">
-
-        <div class="widget">
-
-            Clock
-
-        </div>
-
-        <div class="widget">
-
-            AQI
-
-        </div>
-
-        <div class="widget">
-
-            UV Index
-
-        </div>
-
-        <div class="widget">
-
-            Sunrise / Sunset
-
-        </div>
-
-        <div class="widget">
-
-            Notifications
-
-        </div>
-
+    <aside class="right-sidebar" aria-label="City details">
+        <div class="widget"><h3>City Clock</h3><p id="cityClock" class="widget-value">—</p><p id="clockCity" class="section-note">Choose a city</p></div>
+        <div class="widget"><h3>Sunrise / Sunset</h3><p class="sun-time">Sunrise <strong id="sunrise">—</strong></p><p class="sun-time">Sunset <strong id="sunset">—</strong></p></div>
+        <div class="widget"><h3>About WeatherX</h3><p class="section-note">Search a city or use your current location. Weather and forecast data are provided by OpenWeather.</p></div>
     </aside>
 
 </div>

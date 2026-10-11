@@ -20,6 +20,23 @@ const feelsLike = miniCards[3];
 let tempChart;
 let activeController;
 let requestNumber = 0;
+let cityTimezone = null;
+const statusElement = document.querySelector("#weatherStatus");
+function setStatus(message, isError = false) {
+    statusElement.textContent = message;
+    statusElement.classList.toggle("error", isError);
+}
+function updateClock() {
+    if (cityTimezone === null) return;
+    document.querySelector("#cityClock").textContent = formatCityTime(Date.now() / 1000, cityTimezone);
+}
+setInterval(updateClock, 1000);
+document.querySelectorAll("nav a").forEach(link => {
+    link.addEventListener("click", () => {
+        document.querySelectorAll("nav a").forEach(item => item.classList.remove("active"));
+        link.classList.add("active");
+    });
+});
 
 function getWeatherIcon(weather) {
     const icons = {
@@ -55,6 +72,11 @@ function formatCityTime(timestamp, timezone) {
 
 function updateCurrentWeather(data) {
     city.textContent = data.name;
+    cityTimezone = data.timezone;
+    updateClock();
+    document.querySelector("#clockCity").textContent = data.name;
+    document.querySelector("#sunrise").textContent = formatCityTime(data.sys.sunrise, data.timezone);
+    document.querySelector("#sunset").textContent = formatCityTime(data.sys.sunset, data.timezone);
     temperature.textContent = `${Math.round(data.main.temp)}°`;
     condition.textContent = data.weather[0].main;
 
@@ -150,6 +172,7 @@ function createChart(labels, temperatures) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
@@ -188,6 +211,8 @@ async function fetchWeatherData(type, query, signal) {
 
 async function loadWeather(query) {
     const currentRequest = ++requestNumber;
+    setStatus("Loading weather…");
+    document.querySelector(".weather-grid").setAttribute("aria-busy", "true");
 
     if (activeController) {
         activeController.abort();
@@ -230,12 +255,17 @@ async function loadWeather(query) {
         }
 
         updateForecast(forecast);
+        setStatus(`Weather updated for ${current.name}.`);
     } catch (error) {
         if (
             error.name !== "AbortError" &&
             currentRequest === requestNumber
         ) {
-            alert(error.message);
+            setStatus(error.message + ". Please try again.", true);
+        }
+    } finally {
+        if (currentRequest === requestNumber) {
+            document.querySelector(".weather-grid").setAttribute("aria-busy", "false");
         }
     }
 }
@@ -245,16 +275,20 @@ function searchCity() {
 
     if (cityName) {
         loadWeather({ q: cityName });
+    } else {
+        setStatus("Enter a city name to search.", true);
+        searchInput.focus();
     }
 }
 
 function getCurrentLocation() {
     if (!navigator.geolocation) {
-        alert("Your browser does not support location.");
+        setStatus("Your browser does not support location.", true);
         return;
     }
 
     locationButton.disabled = true;
+    setStatus("Finding your location…");
 
     navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -276,10 +310,7 @@ function getCurrentLocation() {
                 3: "Location request timed out. Please try again."
             };
 
-            alert(
-                messages[error.code] ||
-                "Unable to get your location."
-            );
+            setStatus(messages[error.code] || "Unable to get your location.", true);
         },
         {
             timeout: 10000,
@@ -292,7 +323,7 @@ function getCurrentLocation() {
 locationButton.addEventListener("click", getCurrentLocation);
 
 searchInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !searchInput.closest("form")) {
         event.preventDefault();
         searchCity();
     }
